@@ -1,0 +1,108 @@
+<div id='search-area'>
+  <form action="/api/search" method="post" id="search_form" class="searchForm2">
+    <label hidden for="search_input"></label>
+    <input type="text" class="searchBox2" placeholder="Enter an address, city, or ZIP code" name="search_input"
+      id="search_input" value={{search}}>
+    <input type='submit' name='button' value='' id="searchButton2" class="searchButton">
+  </form>
+  <form id="criteria-search" class="criteria" method="post" action="/api/search">
+    <select name="priceRange" id="priceRange" class="select_box">
+      <option value=''>Price</option>
+      <option value="0">$0-$1000</option>
+      <option value="1000">$1000-$2000</option>
+      <option value="2000">$2000-$3000</option>
+      <option value="3000">$3000-$4000</option>
+      <option value="4000">> $4000</option>
+    </select>
+
+    <select name="selectTag" id="selectTag" class="select_box">
+      <option value=''>Tag</option>
+      <option value="House">House</option>
+      <option value="Apartment">Apartment</option>
+      <option value="Villa">Villa</option>
+    </select>
+    <input hidden type="submit" value="go">
+  </form>
+  <div id='error-area' class='error-area'>
+  </div>
+</div>
+
+<div class="container" id = 'posts-container'>
+   <div class="row">
+    <div class = 'col-md-6' id = 'map-area'>
+      <div id="map"></div>
+    </div>
+
+    <div hidden class = 'col-md-6' style="float:right; overflow:auto;" id = 'results'>
+    <h1>Rental Listings</h1>
+    <p id= 'number-of-posts'>{{number}} results</p>
+    {{#if error}}
+    <div hidden>
+      <p id='search-error-message1'>{{error}}</p>
+    </div>
+    {{/if}}
+    <textarea hidden id="map-address">
+    {{address.address}},{{address.city}},{{address.state}}</textarea>
+    {{#grouped_each 2 posts}}
+    <div class="row">
+      {{#each this}}
+
+      <div class="col-sm-6 posts-area">
+        <div class="card">
+          <div class="card-image">
+            <img class="img-fluid" src="{{image}}" alt="Card image" width="325" height='150' />
+          </div>
+          <div class="card-image-overlay">
+            <span class="card-detail-badge">{{this.zipcode}}</span>
+            <span class="card-detail-badge">{{this.city}}</span>
+            <span class="card-detail-badge">${{this.price}}/mo</span>
+          </div>
+          <div class="card-body text-center">
+            <p class="card-title">{{this.title}}</p>
+
+            <a href="/posts/{{_id}}" class="post-info-btn">Detail</a>
+
+          </div>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+    {{/grouped_each}}
+    </div>
+</div>
+</div>
+<script src="/public/js/search.js"></script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+<script
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDKqCSVMtzn9s6rFHVLGhfylw9abVVRT3A&callback=initMap&libraries=&v=weekly"
+  defer></script>
+<script>
+
+function initMap() {
+  const map = new google.maps.Map(document.getElementById("map"), {
+    zoom: 17,
+    center: { lat: -34.397, lng: 150.644 },
+  });
+  const geocoder = new google.maps.Geocoder();
+
+  geocodeAddress(geocoder, map);
+
+}
+
+function geocodeAddress(geocoder, resultsMap) {
+  const address = $('#map-address').val();
+
+  geocoder.geocode({ address: address }, (results, status) => {
+
+    if (status === "OK") {
+      resultsMap.setCenter(results[0].geometry.location);
+      new google.maps.Marker({
+        map: resultsMap,
+        position: results[0].geometry.location,
+      });
+    } else {
+      alert("Geocode was not successful for the following reason: " + status);
+    }
+  });
+}
+</script>

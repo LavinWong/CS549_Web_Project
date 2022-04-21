@@ -1,0 +1,131 @@
+<div class='container' id = 'single-container'>
+  <div id='title-area'>
+    <h1 id='single-post-title'>{{post.title}}</h1>
+    <label hidden for="heart"></label>
+    <button class="like-button" id = 'heart'></button>
+    <div hidden class = 'user-error-message' id = 'user-error-message'>{{userLoggedIn}}</div>
+  </div>
+
+  <div class='container' id = 'top-post-area'>
+    <div class='row'>
+      <div class='col-md-6'>
+        <div class="gallery">
+          <div class="img"><img src=/{{main}} alt = 'No image' height="250" width="400"></div>
+          {{#if sides}}
+          <div class="side-image">
+            {{#grouped_each 4 sides}}
+            {{#each this}}
+            <div class="single-img"><img src=/{{this}} alt = 'No image' eight="75" width="100"></div>
+            {{/each}}
+
+            {{/grouped_each}}
+          </div>
+          {{/if}}
+        </div>
+      </div>
+      <div class='col-md-6' id = 'map-area-2'>
+          <textarea hidden id="map-address">{{post.address}},{{post.city}},{{post.state}}</textarea>
+          <div id="map2"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- frontend is going to read these values -->
+  <div class='container' id = 'single-post-information'>
+
+    <h2>Post Information:</h2>
+    <span id='single-date'>Date: {{post.date}}</span>
+    <div class='price'>Price: {{post.price}} </div>
+    <div class='address' >Address: <div id='address'>{{post.address}}</div> </div>
+    <div class='state'>State:<div id='state'>{{post.state}}</div> </div>
+    <div class='city'>City: <div id='city'>{{post.city}}</div> </div>
+    <div class='zipcode'>Zipcode: <div  id='zipcode'>{{post.zipcode}}</div></div>
+    <div class='description'>Description: {{post.description}} </div>
+    <div class='tag'>Tag: {{post.tag}} </div>
+  </div>
+
+
+  <div class='container' id = 'single-contact-information'>
+    <h2>Contact Information: </h2>
+    <!-- <div class='address'>Address: {{post.address}} {{post.state}} {{post.city}} {{post.zipcode}}</div> -->
+    <div class='single-username'> Name: {{post.user.name}}</div>
+    <div class='phone'>Phone: {{post.phone}} </div>
+    <div class='email'>Email: {{post.email}} </div>
+  </div>
+
+  <div class = 'container' id = 'post-comment-area'>
+  <div hidden id="postId">{{post._id}}</div>
+    <h2>Comments:</h2>
+    <form action="/comments/{{post._id}}" method="post" id="comment_form" class="commentForm">
+      <label for="comment_input"> <textarea id="comment_input"></textarea></label>
+      <input type="submit" value="Comment" id='post_button'>
+    </form>
+
+  <div hidden id='comment-error' class='comment-error-area'>
+  </div>
+  </div>
+
+  <div id='comments-area'>
+    {{#if comments}}
+    {{#each comments}}
+    <div class="be-comment">
+      <div class="be-img-comment">
+        <img src="http://localhost:3000/public/icon/avatar1.png" alt="" class="be-ava-comment">
+      </div>
+      <div class="be-comment-content">
+        <span class="be-comment-name">
+        {{this.user.username}}
+        </span>
+        <span class="be-comment-time">
+          <i class="fa fa-clock-o"></i>
+          {{this.date}}
+        </span>
+
+        <p class='comment_content'>{{this.content}} </p>
+      </div>
+    </div>
+    {{/each}}
+    {{/if}}
+
+  </div>
+  <div class='container' id='similarPosts-container'>
+    <div class="recommendPosts" id='recommendPosts-area'>Similar Posts: </div>
+  </div>
+
+</div>
+
+<script src="../public/js/singlePost.js"></script>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+<script
+  src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDKqCSVMtzn9s6rFHVLGhfylw9abVVRT3A&callback=initMap&libraries=&v=weekly"
+  defer></script>
+<script>
+
+function initMap() {
+  const map = new google.maps.Map(document.getElementById("map2"), {
+    zoom: 17,
+    center: { lat: -34.397, lng: 150.644 },
+  });
+  const geocoder = new google.maps.Geocoder();
+
+  geocodeAddress(geocoder, map);
+
+}
+
+function geocodeAddress(geocoder, resultsMap) {
+  const address = $('#map-address').val();
+
+  geocoder.geocode({ address: address }, (results, status) => {
+
+    if (status === "OK") {
+      resultsMap.setCenter(results[0].geometry.location);
+      new google.maps.Marker({
+        map: resultsMap,
+        position: results[0].geometry.location,
+      });
+    } else {
+      alert("Geocode was not successful for the following reason: " + status);
+    }
+  });
+}
+</script>
